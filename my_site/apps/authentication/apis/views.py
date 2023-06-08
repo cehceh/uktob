@@ -12,55 +12,39 @@ from dj_rest_auth.views import LoginView
 
 from django.contrib.auth import authenticate
 
-from .serializers import CustomObtainSerializer, UserTokenSerializer, TokenAPISerializer
+from .serializers import UserTokenSerializer
 
 from apps.authentication.models import CustomUser
 
 
 class MyCustomLogin(LoginView):
     '''
-        :Managing login process
+        Managing login process
     '''
 
     def get_response(self):
-        base_response = super(MyCustomLogin, self).get_response()
+        response = super(MyCustomLogin, self).get_response()
 
         #* here you can get specific fields in the login response 
-        base_response.data['user'] = {
-            'phone_number': self.user.phone_number,
-            #* here you can add some fields if you wish to get more in response
+        response.data['user'] = {
+            'username': self.user.username,
         }
 
-        return base_response
+        return response
 
 
 class MyCustomRegister(RegisterView):
     '''
-        :Managing registration process
+        Managing registration process
     '''
     def create(self, request, *args, **kwargs):    
-        base_response = super(MyCustomRegister, self).create(request, *args, **kwargs)
-        base_response.data['user'] = {
+        response = super(MyCustomRegister, self).create(request, *args, **kwargs)
+        response.data['user'] = {
             'first_name': request.data['first_name'],
             'last_name': request.data['last_name'], 
-            'country_code': request.data['country_code'],
-            'phone_number': request.data['phone_number'],
-            'gender': request.data['gender'],
-            'birth_date': request.data['birth_date'],
         }
         
-        return base_response
-
-
-## for task(3)
-
-class TokenObtainPairView(TokenViewBase):
-    serializer_class = CustomObtainSerializer
-
-class TokenAPIView(TokenVerifyView):
-    serializer_class = TokenAPISerializer
-
-
+        return response
 
 
 
