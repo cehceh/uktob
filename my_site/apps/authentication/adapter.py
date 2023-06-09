@@ -12,12 +12,12 @@ class CustomAccountAdapter(DefaultAccountAdapter):
     def save_user(self, request, user, form, commit=False):
         user = super().save_user(request, user, form, commit)
         data = form.cleaned_data
-        user.phone_number = data.get('phone_number')
-        # user.last_name = data.get('last_name')
+        user.username = data.get('username')
         
-        user.username = user.phone_number   #data.get('username')
-        user.email = data.get('email')
         user.save()  
-
+        print(
+            'REQUEST.USER::', request.user, 
+            'REQUEST.AUTH::', request.auth 
+        )
         return user
 

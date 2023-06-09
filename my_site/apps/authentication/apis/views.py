@@ -2,6 +2,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 # from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
+from rest_framework import generics
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenViewBase, TokenVerifyView
@@ -9,12 +10,13 @@ from rest_framework_simplejwt.views import TokenViewBase, TokenVerifyView
 from dj_rest_auth.registration.views import RegisterView
 
 from dj_rest_auth.views import LoginView
-
-from django.contrib.auth import authenticate
-
-from .serializers import UserTokenSerializer
+# from django.contrib.auth import authenticate
 
 from apps.authentication.models import CustomUser
+from .serializers import (
+    UserTokenSerializer, 
+    # ConcatenateStringsSerializer
+)
 
 
 class MyCustomLogin(LoginView):
@@ -29,7 +31,7 @@ class MyCustomLogin(LoginView):
         response.data['user'] = {
             'username': self.user.username,
         }
-
+        print('response:::', response.data)
         return response
 
 
@@ -40,8 +42,7 @@ class MyCustomRegister(RegisterView):
     def create(self, request, *args, **kwargs):    
         response = super(MyCustomRegister, self).create(request, *args, **kwargs)
         response.data['user'] = {
-            'first_name': request.data['first_name'],
-            'last_name': request.data['last_name'], 
+            'username': request.data['username'], 
         }
         
         return response
@@ -53,18 +54,17 @@ class UserTokenApi(APIView):
     def post(self, request):
         serializer = UserTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data # Fetch the data form serializer
+        data = serializer.validated_data 
 
-        # user = authenticate(email=data['email'], password=data['password']) # check for email and password
-        user = CustomUser.objects.values('phone_number')
+        user = CustomUser.objects.values('username')
         match = user.filter(id=request.user.id).exists()
         if match:
             obj = user.get(id=request.user.id)
         else:
             obj = [] 
         
-        if obj == [] or obj['phone_number'] != data['phone_number']: # check for phone
-            raise serializers.ValidationError({'error':'Incorrect phone number'})
+        if obj == [] or obj['username'] != data['username']: # check for phone
+            raise serializers.ValidationError({'error':'Incorrect user name'})
 
         # Generate Token
         refresh = RefreshToken.for_user(obj)
@@ -79,27 +79,53 @@ class UserTokenApi(APIView):
 
 
 
-## Another solution for Task(3)
-# from rest_framework.authtoken.views import ObtainAuthToken
-# from rest_framework.authtoken.models import Token
-# from rest_framework.response import Response
 
-# class CustomAuthToken(ObtainAuthToken):
-#     serializers_class = UserTokenSerializer
+#* For First Task
+class SumListNum(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        """
+            Calculates the sum of the list items
+        """
+        data_dict = {}
+        my_arr = [25, '4443', 16, 15, 14, 13,] 
+        data_dict['my_arr'] = my_arr
+        check = [
+            isinstance(item, int) for item in my_arr
+        ]
 
-#     def post(self, request, *args, **kwargs):
-#         # serializer = self.serializer_class(
-#         #     data=request.data, context={'request': request})
-#         serializer = UserTokenSerializer(
-#             data=request.data)
+        if False in check:
+            result = Response(
+                {'error': 'One or more item in your array are not a number'}, 
+                status=status.HTTP_400_BAD_REQUEST)            
+        else:
+            sum_arr =  sum(my_arr)
+            result = Response(
+                {'Success, result is :' : sum_arr}, 
+                status=status.HTTP_200_OK)
+            
+        return result
+    
 
-#         serializer.is_valid(raise_exception=True)
-#         # user = serializer.validated_data['phone_number']
-#         user = request.user.id
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response({
-#             'token': token.key,
-#             'user_id': user.pk,
-#             'phone_number': user.phone_number
-#         }, status=status.HTTP_200_OK)
 
+class ConcatenateStrings(generics.ListAPIView): 
+    
+    def get(self, request):
+        """
+            Concatenates two strings
+        """
+        data_dict = {}
+        
+        data_dict['str_one'] = 'Hello' 
+        data_dict['str_two'] = request.user.username
+        
+        if  type(data_dict['str_one']) == str and type(data_dict['str_two']) == str:    
+            data_dict['result'] = (data_dict['str_one']) + ' ' + (data_dict['str_two']) 
+            result = Response(data_dict, status=status.HTTP_201_CREATED)
+        else:
+            result = Response(
+                {'error': 'One of the variable or both of them are not String'}, 
+                status=status.HTTP_400_BAD_REQUEST)
+            
+        return result
+    

@@ -3,24 +3,24 @@ from django.db import transaction
 from rest_framework import exceptions, serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from dj_rest_auth.serializers import LoginSerializer
-from datetime import datetime, date
 
-from django.core.validators import RegexValidator
-
-from django.utils.timezone import utc
-from django.contrib.auth import authenticate
+# from datetime import datetime, date
+# from django.core.validators import RegexValidator
+# from django.utils.timezone import utc
+# from django.contrib.auth import authenticate
 
 from ..models import  CustomUser
 
-import base64
-from django.core.files.base import ContentFile
+# import base64
+# from django.core.files.base import ContentFile
 
 
 
 class CustomRegisterSerializer(RegisterSerializer):
-    username = serializers.CharField(max_length=20, required=False) # write_only=True
-    first_name = serializers.CharField(max_length=30, required=True)
-    last_name = serializers.CharField(max_length=30, required=True)
+    username = serializers.CharField(max_length=20, required=True) # write_only=True
+    email = None
+    # first_name = serializers.CharField(max_length=30, required=True)
+    # last_name = serializers.CharField(max_length=30, required=True)
 
     def validate_username(self, username):
         """
@@ -51,7 +51,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         data_dict = super().get_cleaned_data()
         data_dict['id'] = self.validated_data.get('id', '')
         data_dict['username'] = self.validated_data.get('username', '')
-        # data_dict['last_name'] = self.validated_data.get('last_name', '')
+        # data_dict['email'] = self.validated_data.get('email', '')
         print(
             'data_dict::', data_dict 
             # 'data_dict::', 
@@ -77,7 +77,7 @@ class CustomRegisterSerializer(RegisterSerializer):
 
 class CustomLoginSerializer(LoginSerializer):
     username = serializers.CharField(label='User Name',required=True)
-    # email = None
+    email = None
 
     def authenticate(self, **kwargs):
         """
@@ -94,3 +94,19 @@ class CustomLoginSerializer(LoginSerializer):
         except ObjectDoesNotExist:
             return None
             
+
+
+
+
+class UserTokenSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+    status = serializers.CharField(required=True)
+    
+
+
+class ConcatenateStringsSerializer(serializers.Serializer):
+    string_one = serializers.CharField(required=True)
+    string_two = serializers.CharField(required=True)
+    
+

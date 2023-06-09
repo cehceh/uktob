@@ -10,9 +10,7 @@ from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
 
-    # USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['username',]
-
+    USERNAME_FIELD = 'username'
 
     def __str__(self):
         return '{}'.format(self.username)
@@ -24,11 +22,7 @@ class CustomUser(AbstractUser):
         indexes = [
             models.Index(
                 fields=[
-                    # "phone_number",
-                    # "country_code",
-                    # "gender",
-                    # "email",
-                    # "status",
+                    "username",
                 ]
             )
         ]
