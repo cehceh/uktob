@@ -52,10 +52,10 @@ class CustomRegisterSerializer(RegisterSerializer):
         data_dict['id'] = self.validated_data.get('id', '')
         data_dict['username'] = self.validated_data.get('username', '')
         # data_dict['email'] = self.validated_data.get('email', '')
-        print(
-            'data_dict::', data_dict 
-            # 'data_dict::', 
-        )
+        # print(
+        #     'data_dict::', data_dict 
+        #     # 'data_dict::', 
+        # )
         
         return data_dict
 

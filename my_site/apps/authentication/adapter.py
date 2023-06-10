@@ -1,7 +1,3 @@
-# from django.contrib.sites import requests
-# from django.core.exceptions import ValidationError
-from django.db.models import Q
-
 from allauth.account.adapter import DefaultAccountAdapter
 
 from apps.authentication.models import CustomUser
@@ -16,8 +12,8 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         
         user.save()  
         print(
-            'REQUEST.USER::', request.user, 
-            'REQUEST.AUTH::', request.auth 
+            # 'REQUEST.USER::', request.user, 
+            # 'REQUEST.AUTH::', request.auth 
         )
         return user
 

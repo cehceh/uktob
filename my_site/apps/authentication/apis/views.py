@@ -31,7 +31,7 @@ class MyCustomLogin(LoginView):
         response.data['user'] = {
             'username': self.user.username,
         }
-        print('response:::', response.data)
+        # print('response:::', response.data)
         return response
 
 
